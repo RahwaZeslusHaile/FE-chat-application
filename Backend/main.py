@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 from Backend.models import Message
-from Backend.storage import InMemoryMessageRepository
+from Backend.repository import InMemoryMessageRepository
 from Backend.service import MessageService
 
 app = FastAPI(title="Chat API", version="1.0.0")
