@@ -2,6 +2,7 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional, List
 import os
@@ -13,10 +14,9 @@ from long_polling.poller import LongPoller
 
 app = FastAPI(title="Chat API", version="1.0.0")
 
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://rahwachatapp.hosting.codeyourfuture.io"], 
+    allow_origins=["https://rahwachatapp.hosting.codeyourfuture.io"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,28 +36,28 @@ class MessageResponse(BaseModel):
     content: str
     timestamp: str
 
-
 frontend_path = os.path.join(os.path.dirname(__file__), "dist")
 
-app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+
+@app.get("/{full_path:path}", include_in_schema=False)
+def serve_react(full_path: str):
+    return FileResponse(os.path.join(frontend_path, "index.html"))
 
 @app.get("/messages", response_model=List[MessageResponse])
-def get_messages(after: Optional[str] = Query(None, description="ISO timestamp to get messages after")):
+def get_messages(after: Optional[str] = Query(None)):
     try:
         if after:
             after_dt = datetime.fromisoformat(after)
             messages = message_service.get_messages_after(after_dt)
         else:
             messages = message_service.get_all_messages()
-
         messages = sorted(messages, key=lambda m: m.timestamp.value, reverse=True)
         return [MessageResponse(**msg.to_dict()) for msg in messages]
-
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid timestamp format")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/messages/{message_id}", response_model=MessageResponse)
 def get_message(message_id: str):
@@ -69,7 +69,6 @@ def get_message(message_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/messages", response_model=MessageResponse)
 def create_message(request: MessageRequest):
     try:
@@ -80,9 +79,8 @@ def create_message(request: MessageRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/messages/longpoll", response_model=List[MessageResponse])
-def long_poll_messages(after: str = Query(..., description="ISO timestamp to poll messages after")):
+def long_poll_messages(after: str = Query(...)):
     try:
         after_dt = datetime.fromisoformat(after)
         new_messages = poller.wait_for_new_messages(after_dt)
