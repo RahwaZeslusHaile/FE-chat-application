@@ -1,6 +1,6 @@
 import datetime
 from typing import Optional
-from Backend.models import IMessage, Message, IMessageRepository, UsernameValidator, MessageContentValidator
+from models import IMessage, Message, IMessageRepository, UsernameValidator, MessageContentValidator
 
 class MessageService:
   

@@ -4,10 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 
-from Backend.models import Message
-from Backend.repository import InMemoryMessageRepository
-from Backend.service import MessageService
-from Backend.long_polling.poller import LongPoller
+from models import Message
+from repository import InMemoryMessageRepository
+from service import MessageService
+from long_polling.poller import LongPoller
 
 
 app = FastAPI(title="Chat API", version="1.0.0")
