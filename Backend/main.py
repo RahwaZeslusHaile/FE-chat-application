@@ -13,19 +13,18 @@ from long_polling.poller import LongPoller
 
 app = FastAPI(title="Chat API", version="1.0.0")
 
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://rahwafrontendchatapp.hosting.codeyourfuture.io"], 
+    allow_origins=["https://rahwachatapp.hosting.codeyourfuture.io"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
 repository = InMemoryMessageRepository()
 message_service = MessageService(repository)
 poller = LongPoller(message_service)
-
 
 class MessageRequest(BaseModel):
     username: str
@@ -40,9 +39,7 @@ class MessageResponse(BaseModel):
 
 frontend_path = os.path.join(os.path.dirname(__file__), "dist")
 
-# Serve all static files + index.html at root
 app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
-
 
 @app.get("/messages", response_model=List[MessageResponse])
 def get_messages(after: Optional[str] = Query(None, description="ISO timestamp to get messages after")):
@@ -61,6 +58,7 @@ def get_messages(after: Optional[str] = Query(None, description="ISO timestamp t
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/messages/{message_id}", response_model=MessageResponse)
 def get_message(message_id: str):
     try:
@@ -70,6 +68,7 @@ def get_message(message_id: str):
         return MessageResponse(**message.to_dict())
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/messages", response_model=MessageResponse)
 def create_message(request: MessageRequest):
@@ -81,6 +80,7 @@ def create_message(request: MessageRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/messages/longpoll", response_model=List[MessageResponse])
 def long_poll_messages(after: str = Query(..., description="ISO timestamp to poll messages after")):
     try:
@@ -91,7 +91,6 @@ def long_poll_messages(after: str = Query(..., description="ISO timestamp to pol
         raise HTTPException(status_code=400, detail="Invalid timestamp format")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 if __name__ == "__main__":
     import uvicorn
