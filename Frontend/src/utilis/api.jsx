@@ -1,4 +1,4 @@
-const BASE_URL = "https://rahwachatapp.hosting.codeyourfuture.io";
+const BASE_URL = "https://backendrahwachatapp.hosting.codeyourfuture.io";
 
 export const fetchMessages = async () => {
   try {
