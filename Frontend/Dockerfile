@@ -1,16 +1,19 @@
-FROM node:20-alpine
-
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
-
 RUN npm run build
 
-# Serve with a static server
+FROM node:20-alpine AS runner
+WORKDIR /app
+
 RUN npm install -g serve
 
-EXPOSE 5173
-CMD ["sh", "-c", "serve -s dist -l ${PORT:-5173}"]
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 80
+
+CMD ["sh", "-c", "serve -s dist -l ${PORT:-80}"]
