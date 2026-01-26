@@ -32,7 +32,6 @@ python3 -m venv venv
 source venv/bin/activate   # macOS / Linux
 # venv\Scripts\activate  # Windows (PowerShell)
 pip install -r requirements.txt
-# Start the backend (example)
 python app.py
 ```
 
@@ -41,7 +40,7 @@ python app.py
 ```bash
 cd Frontend
 npm install
-npm run dev    # or `npm start` depending on the project scripts
+npm run dev    
 ```
 
 Open the frontend URL shown by the dev server (usually http://localhost:3000 or http://localhost:5173).

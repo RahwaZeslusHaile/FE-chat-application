@@ -14,7 +14,7 @@ class LongPoller:
         while datetime.now() - start < timedelta(seconds=self.timeout):
             new_messages = self.message_service.get_messages_after(after_timestamp)
             if new_messages:
-                return [m.to_dict() for m in new_messages]
+                return new_messages
             time.sleep(self.interval)
 
         return []  

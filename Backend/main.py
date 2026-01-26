@@ -17,7 +17,10 @@ app = FastAPI(title="Chat API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-            "https://rahwafrontendchatapp.hosting.codeyourfuture.io"],
+            "https://rahwafrontendchatapp.hosting.codeyourfuture.io",
+            "http://localhost:5173",
+            "http://127.0.0.1:5173"
+    ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,6 +39,7 @@ class MessageResponse(BaseModel):
     username: str
     content: str
     timestamp: str
+    timestamp_iso: str
     
 @app.get("/messages", response_model=List[MessageResponse])
 def get_messages(after: Optional[str] = Query(None)):
@@ -47,6 +51,17 @@ def get_messages(after: Optional[str] = Query(None)):
             messages = message_service.get_all_messages()
         messages = sorted(messages, key=lambda m: m.timestamp.value, reverse=True)
         return [MessageResponse(**msg.to_dict()) for msg in messages]
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid timestamp format")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/messages/longpoll", response_model=List[MessageResponse])
+def long_poll_messages(after: str = Query(...)):
+    try:
+        after_dt = datetime.fromisoformat(after)
+        new_messages = poller.wait_for_new_messages(after_dt)
+        return [MessageResponse(**m.to_dict()) for m in new_messages]
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid timestamp format")
     except Exception as e:
@@ -72,16 +87,7 @@ def create_message(request: MessageRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/messages/longpoll", response_model=List[MessageResponse])
-def long_poll_messages(after: str = Query(...)):
-    try:
-        after_dt = datetime.fromisoformat(after)
-        new_messages = poller.wait_for_new_messages(after_dt)
-        return [MessageResponse(**m.to_dict()) for m in new_messages]
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid timestamp format")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -33,3 +33,18 @@ export const postMessage = async (message) => {
     return null;
   }
 };
+
+export const pollMessages = async (afterTimestamp) => {
+  try {
+    const res = await fetch(`${BASE_URL}/messages/longpoll?after=${encodeURIComponent(afterTimestamp)}`);
+    if (!res.ok) {
+      console.error("Failed to poll messages:", res.status, res.statusText);
+      return [];
+    }
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error("Error polling messages:", err);
+    return [];
+  }
+};

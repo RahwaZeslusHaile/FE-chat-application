@@ -1,4 +1,4 @@
-import { fetchMessages, postMessage } from "./utilis/api.jsx";
+import { fetchMessages, postMessage, pollMessages } from "./utils/api.jsx";
 import ChatWindow from "./components/ChatWindow.jsx";
 import React, { useState, useEffect } from "react";
 
@@ -7,34 +7,66 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
- 
   useEffect(() => {
-    const loadMessages = async () => {
+    let isMounted = true;
+    
+    const loadAndPoll = async () => {
       setLoading(true);
       setError(null);
+     
+      let lastIso = new Date().toISOString();
       try {
         const data = await fetchMessages();
-        setMessages(data); 
+        if (!isMounted) return;
+        
+        const sortedData = [...data].reverse(); 
+        setMessages(sortedData);
+        
+        if (data.length > 0) {
+           if (data[0].timestamp_iso) {
+               lastIso = data[0].timestamp_iso;
+           }
+        }
       } catch (err) {
         console.error("Error loading messages:", err);
-        setError("Failed to load messages");
-        setMessages([]); 
+        if (isMounted) setError("Failed to load messages");
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
+      }
+
+      while (isMounted) {
+        try {
+            const newMsgs = await pollMessages(lastIso);
+            if (!isMounted) break;
+            
+            if (newMsgs.length > 0) {
+                setMessages(prev => [...prev, ...newMsgs]);
+  
+                const lastMsg = newMsgs[newMsgs.length - 1];
+                if (lastMsg.timestamp_iso) {
+                    lastIso = lastMsg.timestamp_iso;
+                }
+            }
+        } catch (pollingErr) {
+            console.error("Polling loop error", pollingErr);
+            await new Promise(r => setTimeout(r, 2000));
+        }
       }
     };
 
-    loadMessages();
+    loadAndPoll();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
- 
   const handleSendMessage = async (newMessage) => {
-    const savedMessage = await postMessage(newMessage);
-    if (!savedMessage) return; 
-    setMessages((prevMessages) => [
-      ...(Array.isArray(prevMessages) ? prevMessages : []),
-      savedMessage,
-    ]);
+    try {
+        await postMessage(newMessage);
+    } catch (err) {
+        console.error("Failed to send", err);
+    }
   };
 
   return (
@@ -53,3 +85,4 @@ function App() {
 }
 
 export default App;
+

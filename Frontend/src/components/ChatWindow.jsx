@@ -3,7 +3,7 @@ import Header from "./Header.jsx";
 import MessageList from "./MessageList.jsx";
 import MessageInput from "./MessageInput.jsx";
 
-function ChatWindow({ messages, onSendMessage , children }){ {
+function ChatWindow({ messages, onSendMessage , children }){
     return(
         <div className="flex flex-col h-full">
             <Header />
@@ -15,5 +15,5 @@ function ChatWindow({ messages, onSendMessage , children }){ {
         </div>  
     )
 }
-}
+
 export default ChatWindow;

@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime
+import time
 from typing import Optional
 from models import IMessage, Message, IMessageRepository, UsernameValidator, MessageContentValidator
 
@@ -17,27 +18,15 @@ class MessageService:
         self.repository.save(message)
         return message
     
-    def get_messages_since(self, timestamp: datetime, timeout: int = 25):
-        start = datetime.datetime.now()
-        while datetime.datetime.now() - start < datetime.timedelta(seconds=timeout):
-            all_messages = self.repository.get_all()
-            new_messages = [
-                m for m in all_messages 
-                if m.timestamp.value > timestamp
-            ]
-            if new_messages:
-                return new_messages
-            datetime.time.sleep(0.5)
-        return []
-    
     def get_message_by_id(self, message_id: str) -> Optional[IMessage]:
         return self.repository.get_by_id(message_id)
     
     def get_all_messages(self):
         return self.repository.get_all()
 
-    def get_messages_after(self, timestamp: datetime):
-        return [
-            m for m in self.repository.get_all()
-            if m.timestamp.value > timestamp
-        ]
+    def get_message_by_id(self, message_id: str) -> Optional[IMessage]:
+        return self.repository.get_by_id(message_id)
+
+    def get_messages_after(self, after_dt: datetime):
+        return [msg for msg in self.repository.get_all() if msg.timestamp > after_dt    
+                if msg.timestamp > after_dt]

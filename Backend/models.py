@@ -75,7 +75,8 @@ class Message(IMessage):
             "id": self.id,
             "username": self.username,
             "content": self.content,
-            "timestamp": self.get_timestamp()
+            "timestamp": self.get_timestamp(),
+            "timestamp_iso": self.timestamp.value.isoformat()
         }
     
     def get_username(self) -> str:
