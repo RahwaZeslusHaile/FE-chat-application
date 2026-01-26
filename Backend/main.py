@@ -33,6 +33,10 @@ poller = LongPoller(message_service)
 class MessageRequest(BaseModel):
     username: str
     content: str
+    scheduled_for: Optional[str] = None
+    text_color: Optional[str] = None
+    is_bold: bool = False
+    is_italic: bool = False
 
 class MessageResponse(BaseModel):
     id: str
@@ -43,10 +47,18 @@ class MessageResponse(BaseModel):
     parent_message_id: Optional[str] = None
     likes: int = 0
     dislikes: int = 0
+    scheduled_for: Optional[str] = None
+    text_color: Optional[str] = None
+    is_bold: bool = False
+    is_italic: bool = False
 
 class ReplyRequest(BaseModel):
     username: str
     content: str
+    scheduled_for: Optional[str] = None
+    text_color: Optional[str] = None
+    is_bold: bool = False
+    is_italic: bool = False
 
 class ReactionRequest(BaseModel):
     reaction_type: str  # "like" or "dislike"
@@ -91,7 +103,15 @@ def get_message(message_id: str):
 @app.post("/messages", response_model=MessageResponse)
 def create_message(request: MessageRequest):
     try:
-        message = message_service.create_message(username=request.username, content=request.content)
+        scheduled_dt = datetime.fromisoformat(request.scheduled_for) if request.scheduled_for else None
+        message = message_service.create_message(
+            username=request.username,
+            content=request.content,
+            scheduled_for=scheduled_dt,
+            text_color=request.text_color,
+            is_bold=request.is_bold,
+            is_italic=request.is_italic,
+        )
         return MessageResponse(**message.to_dict())
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -101,7 +121,16 @@ def create_message(request: MessageRequest):
 @app.post("/messages/{message_id}/replies", response_model=MessageResponse)
 def create_reply(message_id: str, request: ReplyRequest):
     try:
-        reply = message_service.create_reply(username=request.username, content=request.content, parent_message_id=message_id)
+        scheduled_dt = datetime.fromisoformat(request.scheduled_for) if request.scheduled_for else None
+        reply = message_service.create_reply(
+            username=request.username,
+            content=request.content,
+            parent_message_id=message_id,
+            scheduled_for=scheduled_dt,
+            text_color=request.text_color,
+            is_bold=request.is_bold,
+            is_italic=request.is_italic,
+        )
         return MessageResponse(**reply.to_dict())
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

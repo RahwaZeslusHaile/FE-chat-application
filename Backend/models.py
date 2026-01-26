@@ -87,6 +87,10 @@ class Message(IMessage):
     parent_message_id: Optional[str] = None
     likes: int = 0
     dislikes: int = 0
+    scheduled_for: Optional[datetime] = None
+    text_color: Optional[str] = None
+    is_bold: bool = False
+    is_italic: bool = False
     
     def __post_init__(self):
         if not UsernameValidator.validate(self.username):
@@ -103,7 +107,11 @@ class Message(IMessage):
             "timestamp_iso": self.timestamp.value.isoformat(),
             "parent_message_id": self.parent_message_id,
             "likes": self.likes,
-            "dislikes": self.dislikes
+            "dislikes": self.dislikes,
+            "scheduled_for": self.scheduled_for.isoformat() if self.scheduled_for else None,
+            "text_color": self.text_color,
+            "is_bold": self.is_bold,
+            "is_italic": self.is_italic,
         }
     
     def get_username(self) -> str:

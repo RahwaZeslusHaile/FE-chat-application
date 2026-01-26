@@ -72,6 +72,11 @@ function MessageItem({ message, onReactionChange }) {
                 className={`px-3 py-2 rounded-2xl shadow-sm mt-1 break-words whitespace-normal
                             max-w-full sm:max-w-[70%]
                             ${isMe ? 'bg-blue-100' : 'bg-gray-100'}`}
+                style={{
+                    color: message.text_color || '#111827',
+                    fontWeight: message.is_bold ? '700' : '400',
+                    fontStyle: message.is_italic ? 'italic' : 'normal',
+                }}
                 >
                 {message.content}
             </div>

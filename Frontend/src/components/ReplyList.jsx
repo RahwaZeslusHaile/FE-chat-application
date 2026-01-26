@@ -16,7 +16,16 @@ export default function ReplyList({ replies = [], onReactionChange }) {
               <p className="text-gray-500 text-xs">{reply.timestamp}</p>
             </div>
           </div>
-          <p className="text-sm text-gray-800 mt-2">{reply.content}</p>
+          <p
+            className="text-sm mt-2"
+            style={{
+              color: reply.text_color || '#111827',
+              fontWeight: reply.is_bold ? '700' : '400',
+              fontStyle: reply.is_italic ? 'italic' : 'normal',
+            }}
+          >
+            {reply.content}
+          </p>
           <MessageReaction
             messageId={reply.id}
             likes={reply.likes}
