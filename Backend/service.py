@@ -28,5 +28,5 @@ class MessageService:
         return self.repository.get_by_id(message_id)
 
     def get_messages_after(self, after_dt: datetime):
-        return [msg for msg in self.repository.get_all() if msg.timestamp > after_dt    
-                if msg.timestamp > after_dt]
+        messages = [msg for msg in self.repository.get_all() if msg.timestamp > after_dt]
+        return sorted(messages, key=lambda m: m.timestamp.value, reverse=True)

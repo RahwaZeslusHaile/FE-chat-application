@@ -61,7 +61,8 @@ def long_poll_messages(after: str = Query(...)):
     try:
         after_dt = datetime.fromisoformat(after)
         new_messages = poller.wait_for_new_messages(after_dt)
-        return [MessageResponse(**m.to_dict()) for m in new_messages]
+        sorted_messages = sorted(new_messages, key=lambda m: m.timestamp.value, reverse=True)
+        return [MessageResponse(**m.to_dict()) for m in sorted_messages]
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid timestamp format")
     except Exception as e:

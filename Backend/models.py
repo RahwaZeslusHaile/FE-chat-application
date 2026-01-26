@@ -14,6 +14,27 @@ class Timestamp:
     def to_dict(self) -> str:
         return str(self)
     
+    def __gt__(self, other):
+        if isinstance(other, Timestamp):
+            return self.value > other.value
+        elif isinstance(other, datetime):
+            return self.value > other
+        return NotImplemented
+    
+    def __lt__(self, other):
+        if isinstance(other, Timestamp):
+            return self.value < other.value
+        elif isinstance(other, datetime):
+            return self.value < other
+        return NotImplemented
+    
+    def __eq__(self, other):
+        if isinstance(other, Timestamp):
+            return self.value == other.value
+        elif isinstance(other, datetime):
+            return self.value == other
+        return NotImplemented
+    
 class UsernameValidator:
     
     MIN_LENGTH = 1
