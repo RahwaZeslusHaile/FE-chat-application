@@ -19,7 +19,7 @@ class MessageService:
         text_color: Optional[str] = None,
         is_bold: bool = False,
         is_italic: bool = False,
-    ) -> IMessage:
+    ) -> Message:
         if not UsernameValidator.validate(username):
             raise ValueError(f"Invalid username: {username}")
         if not MessageContentValidator.validate(content):
@@ -40,10 +40,10 @@ class MessageService:
         self.repository.save(message)
         return message
     
-    def get_message_by_id(self, message_id: str) -> Optional[IMessage]:
+    def get_message_by_id(self, message_id: str) -> Optional[Message]:
         return self.repository.get_by_id(message_id)
     
-    def _is_available(self, message: IMessage) -> bool:
+    def _is_available(self, message: Message) -> bool:
         """Only surface messages that are due (not scheduled in the future)."""
         if message.scheduled_for and message.scheduled_for > datetime.now():
             return False
@@ -60,7 +60,7 @@ class MessageService:
         ]
         return sorted(messages, key=lambda m: m.timestamp.value, reverse=True)
     
-    def get_replies(self, parent_message_id: str) -> List[IMessage]:
+    def get_replies(self, parent_message_id: str) -> List[Message]:
         """Get all replies to a parent message"""
         all_messages = self.repository.get_all()
         replies = [
@@ -78,7 +78,7 @@ class MessageService:
         text_color: Optional[str] = None,
         is_bold: bool = False,
         is_italic: bool = False,
-    ) -> IMessage:
+    ) -> Message:
         """Create a reply to an existing message"""
         parent = self.get_message_by_id(parent_message_id)
         if not parent:
@@ -93,7 +93,7 @@ class MessageService:
             is_italic=is_italic,
         )
     
-    def add_reaction(self, message_id: str, reaction_type: str) -> Optional[IMessage]:
+    def add_reaction(self, message_id: str, reaction_type: str) -> Optional[Message]:
         """Add a like or dislike reaction to a message"""
         message = self.get_message_by_id(message_id)
         if not message:
