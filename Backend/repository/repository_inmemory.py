@@ -1,7 +1,7 @@
 from typing import Optional
 
 from message_model import Message
-from repository_base import IMessageRepository
+from Backend.repository.repository_base import IMessageRepository
 
 
 class InMemoryMessageRepository(IMessageRepository):

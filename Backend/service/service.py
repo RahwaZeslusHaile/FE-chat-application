@@ -1,9 +1,9 @@
 from datetime import datetime
 import time
 from typing import Optional, List
-from message_model import Message, Timestamp
-from repository_base import IMessageRepository
-from validators import UsernameValidator, MessageContentValidator
+from models.message_model import Message, Timestamp
+from repository.repository_base import IMessageRepository
+from validators.validators import UsernameValidator, MessageContentValidator
 
 class MessageService:
   
@@ -44,7 +44,6 @@ class MessageService:
         return self.repository.get_by_id(message_id)
     
     def _is_available(self, message: Message) -> bool:
-        """Only surface messages that are due (not scheduled in the future)."""
         if message.scheduled_for and message.scheduled_for > datetime.now():
             return False
         return True
@@ -61,7 +60,6 @@ class MessageService:
         return sorted(messages, key=lambda m: m.timestamp.value, reverse=True)
     
     def get_replies(self, parent_message_id: str) -> List[Message]:
-        """Get all replies to a parent message"""
         all_messages = self.repository.get_all()
         replies = [
             msg for msg in all_messages
@@ -79,7 +77,6 @@ class MessageService:
         is_bold: bool = False,
         is_italic: bool = False,
     ) -> Message:
-        """Create a reply to an existing message"""
         parent = self.get_message_by_id(parent_message_id)
         if not parent:
             raise ValueError(f"Parent message not found: {parent_message_id}")
@@ -94,7 +91,6 @@ class MessageService:
         )
     
     def add_reaction(self, message_id: str, reaction_type: str) -> Optional[Message]:
-        """Add a like or dislike reaction to a message"""
         message = self.get_message_by_id(message_id)
         if not message:
             raise ValueError(f"Message not found: {message_id}")

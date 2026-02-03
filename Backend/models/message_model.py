@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import uuid4
 
-from validators import UsernameValidator, MessageContentValidator
+from validators.validators import UsernameValidator, MessageContentValidator
 
 
 @dataclass

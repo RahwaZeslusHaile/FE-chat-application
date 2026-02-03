@@ -1,16 +1,18 @@
 from datetime import datetime
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from typing import Optional, List
 import os
 
-from dto import MessageRequest, MessageResponse, ReplyRequest, ReactionRequest
-from message_model import Message
-from repository_inmemory import InMemoryMessageRepository
-from service import MessageService
+from models.dto import MessageRequest, MessageResponse, ReplyRequest, ReactionRequest
+from models.message_model import Message
+from repository.repository_inmemory import InMemoryMessageRepository
+from service.service import MessageService
 from long_polling.poller import LongPoller
+from websocket.connection_manager import ConnectionManager
+from websocket.handlers import handle_websocket
 
 app = FastAPI(title="Chat API", version="1.0.0")
 
@@ -29,6 +31,7 @@ app.add_middleware(
 repository = InMemoryMessageRepository()
 message_service = MessageService(repository)
 poller = LongPoller(message_service)
+ws_manager = ConnectionManager()
 
 @app.get("/")
 @app.get("/health")
@@ -132,6 +135,10 @@ def add_reaction(message_id: str, request: ReactionRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await handle_websocket(websocket, ws_manager, message_service)
 
 
 if __name__ == "__main__":
