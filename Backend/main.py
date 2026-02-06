@@ -20,6 +20,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
             "https://rahwafrontendchatapp.hosting.codeyourfuture.io",
+            "https://frontendwschat.hosting.codeyourfuture.io",
             "http://localhost:5173",
             "http://127.0.0.1:5173"
     ],
