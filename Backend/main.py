@@ -83,7 +83,7 @@ def get_message(message_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/messages", response_model=MessageResponse)
-def create_message(request: MessageRequest):
+async def create_message(request: MessageRequest):
     try:
         scheduled_dt = parse_iso_datetime(request.scheduled_for) if request.scheduled_for else None
         message = message_service.create_message(
@@ -94,6 +94,7 @@ def create_message(request: MessageRequest):
             is_bold=request.is_bold,
             is_italic=request.is_italic,
         )
+        await ws_manager.broadcast_new_message(message.to_dict())
         return MessageResponse(**message.to_dict())
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -101,7 +102,7 @@ def create_message(request: MessageRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/messages/{message_id}/replies", response_model=MessageResponse)
-def create_reply(message_id: str, request: ReplyRequest):
+async def create_reply(message_id: str, request: ReplyRequest):
     try:
         scheduled_dt = parse_iso_datetime(request.scheduled_for) if request.scheduled_for else None
         reply = message_service.create_reply(
@@ -113,6 +114,7 @@ def create_reply(message_id: str, request: ReplyRequest):
             is_bold=request.is_bold,
             is_italic=request.is_italic,
         )
+        await ws_manager.broadcast_new_reply(reply.to_dict(), message_id)
         return MessageResponse(**reply.to_dict())
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -131,11 +133,12 @@ def get_replies(message_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/messages/{message_id}/reactions", response_model=MessageResponse)
-def add_reaction(message_id: str, request: ReactionRequest):
+async def add_reaction(message_id: str, request: ReactionRequest):
     try:
         if request.reaction_type not in ["like", "dislike"]:
             raise HTTPException(status_code=400, detail="Invalid reaction type. Must be 'like' or 'dislike'")
         message = message_service.add_reaction(message_id, request.reaction_type)
+        await ws_manager.broadcast_reaction(message.to_dict())
         return MessageResponse(**message.to_dict())
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
