@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { fetchMessages, postMessage, pollMessages } from "../src/utils/api.jsx";
+import { API_CONFIG } from "../src/config/api.js";
 
 export const useMessagePolling = () => {
   const [messages, setMessages] = useState([]);
@@ -8,6 +9,10 @@ export const useMessagePolling = () => {
   const lastIsoRef = useRef(null);
 
   useEffect(() => {
+    if (API_CONFIG.USE_WEBSOCKET) {
+      return;
+    }
+
     let isMounted = true;
     
     const loadAndPoll = async () => {

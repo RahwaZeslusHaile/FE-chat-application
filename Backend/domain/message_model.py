@@ -37,6 +37,7 @@ class Timestamp:
             return self.value == other
         return NotImplemented
 
+    
 
 @dataclass
 class Message:
@@ -57,7 +58,15 @@ class Message:
             raise ValueError(f"Invalid username: {self.username}")
         if not MessageContentValidator.validate(self.content):
             raise ValueError(f"Invalid message content: {self.content}")
-
+        
+    def add_reaction(self,reaction_type: str):
+        if reaction_type == "like":
+            self.likes+=1
+        elif reaction_type == "dislike":
+            self.dislikes+=1
+        else:
+            raise ValueError(f"Invalid reaction type:{reaction_type}")
+        
     def to_dict(self) -> dict:
         return {
             "id": self.id,
@@ -73,12 +82,3 @@ class Message:
             "is_bold": self.is_bold,
             "is_italic": self.is_italic,
         }
-
-    def get_username(self) -> str:
-        return self.username
-
-    def get_content(self) -> str:
-        return self.content
-
-    def get_timestamp(self) -> str:
-        return str(self.timestamp)

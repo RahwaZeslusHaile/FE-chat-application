@@ -1,11 +1,10 @@
-from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
-from enum import Enum
+from schemas.types import Username,MessageContent
 
 class MessageRequest(BaseModel):
-    username: str
-    content: str
+    username: Username
+    content: MessageContent
     scheduled_for: Optional[str] = None
     text_color: Optional[str] = None
     is_bold: bool = False
@@ -20,12 +19,6 @@ class ReplyRequest(BaseModel):
     is_bold: bool = False
     is_italic: bool = False
 
-class ReactionRequest(str,Enum):
-    like: str = "like"
-    dislike: str = "dislike"
-
-class ReactionType(BaseModel):
-    reaction_type: ReactionRequest
 
 class MessageResponse(BaseModel):
     id: str

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { wsClient } from "../src/services/websocket/wsClient.js";
 import { postMessage } from "../src/utils/api.jsx";
+import { API_CONFIG } from "../src/config/api.js";
 
 export const useWebSocket = () => {
   const [messages, setMessages] = useState([]);
@@ -9,6 +10,10 @@ export const useWebSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    if (!API_CONFIG.USE_WEBSOCKET) {
+      return;
+    }
+
     wsClient.connect();
 
     const unsubscribeMessages = wsClient.onMessage((data) => {

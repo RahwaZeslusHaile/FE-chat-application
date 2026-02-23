@@ -48,15 +48,81 @@ Open the frontend URL shown by the dev server (usually http://localhost:3000 or 
 
 ## Project Structure
 
-- [Frontend](Frontend/) — React app
-- [Backend](Backend/) — Python API server
+### Backend Architecture
+
+The backend follows a clean architecture pattern with separation of concerns:
+
+```
+Backend/
+├── app/
+│   ├── main.py                    # FastAPI application entry point with lifespan management
+│   ├── api/
+│   │   └── routes/
+│   │       ├── messages.py        # REST API endpoints for messages
+│   │       └── websocket.py       # WebSocket connection endpoint
+│   ├── core/
+│   │   └── dependencies.py        # Dependency injection utilities
+│   ├── domain/
+│   │   └── message_model.py       # Domain model for messages
+│   ├── repository/
+│   │   ├── repository_base.py     # Abstract repository interface
+│   │   ├── repository_in_memory.py # In-memory implementation
+│   │   └── repository.py          # Repository pattern implementations
+│   ├── schemas/
+│   │   ├── message.py             # Pydantic schemas for messages
+│   │   ├── reaction.py            # Pydantic schemas for reactions
+│   │   └── types.py               # Custom type definitions
+│   ├── services/
+│   │   └── message_service.py     # Business logic for message operations
+│   ├── validators/
+│   │   └── validators.py          # Input validation logic
+│   ├── long_polling/
+│   │   └── poller.py              # Long-polling implementation
+│   └── websocket/
+│       ├── connection_manager.py  # WebSocket connection manager
+│       └── handlers.py            # WebSocket message handlers
+└── requirements.txt
+```
+
+**Dependency Flow:**
+- **Repository Layer**: Data access abstraction (repository_in_memory.py)
+- **Service Layer**: Business logic (message_service.py) → uses Repository
+- **Long Polling**: Poller (poller.py) → uses Service
+- **WebSocket**: ConnectionManager + Handlers → uses Service
+- **API Routes**: REST endpoints → use Service via dependency injection
+
+### Frontend Structure
+
+```
+Frontend/
+├── src/
+│   ├── components/
+│   │   ├── ChatWindow.jsx         # Main chat container
+│   │   ├── Header.jsx             # Application header
+│   │   ├── MessageInput.jsx       # Message input component
+│   │   ├── MessageItem.jsx        # Individual message display
+│   │   ├── MessageList.jsx        # Message list container
+│   │   ├── MessageReaction.jsx    # Reaction buttons
+│   │   └── ReplyList.jsx          # Reply thread display
+│   ├── services/
+│   │   └── websocket/
+│   │       └── wsClient.js        # WebSocket client
+│   ├── utils/
+│   │   └── api.jsx                # API utilities
+│   └── config/
+│       └── api.js                 # API configuration
+├── hooks/
+│   ├── useMessagePolling.js       # Long-polling hook
+│   └── useWebSocket.js            # WebSocket hook
+└── package.json
+```
 
 ## Tech Stack
 
-- Frontend: React, WebSocket client
-- Backend: Python (FastAPI), WebSocket support
+- Frontend: React, Vite, TailwindCSS
+- Backend: Python (FastAPI), Repository Pattern, Service Layer
 - Communication: REST API + WebSocket (or Long-Polling as fallback)
-- Optional: SQLAlchemy + SQLite for persistence
+- Data Storage: In-memory repository (extensible to database)
 
 ## Communication Options
 

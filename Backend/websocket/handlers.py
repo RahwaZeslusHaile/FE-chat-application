@@ -4,7 +4,7 @@ import json
 import logging
 
 from websocket.connection_manager import ConnectionManager
-from service.service import MessageService
+from services.message_service import MessageService
 
 logger = logging.getLogger(__name__)
 

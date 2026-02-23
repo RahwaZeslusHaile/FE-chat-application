@@ -3,10 +3,11 @@ from fastapi import APIRouter,HTTPException,Query,Depends
 from typing import Optional,List
 
 
-from Backend.core.dependencies import get_message_service,get_poller,get_ws_manager
+from core.dependencies import get_message_service,get_poller,get_ws_manager
 from services.message_service import MessageService
 from long_polling.poller import LongPoller
-from models.dto import(MessageRequest,MessageResponse,ReplyRequest,ReactionRequest)
+from schemas.message import(MessageRequest,MessageResponse,ReplyRequest)
+from schemas.reaction import ReactionRequest
 from websocket.connection_manager import ConnectionManager
 
 router = APIRouter(prefix="/messages", tags=["messages"])
@@ -54,18 +55,18 @@ def long_poll_message(
         return [MessageResponse(**m.to_dict()) for m in sorted_messages]
     
     except ValueError:
-        raise HTTPException(status_code=404 , detail= "Invalid timestamp format")
+        raise HTTPException(status_code=400 , detail= "Invalid timestamp format")
     except Exception:
         raise HTTPException(status_code=500, detail = "Internal server error")
     
 
-@router.get("/{messages_id}",response_model=MessageResponse)
+@router.get("/{message_id}",response_model=MessageResponse)
 def get_message_by_ID(
     message_id:str,
     message_service:MessageService = Depends(get_message_service)
 ):
     try:
-        message = MessageService.get_message_by_id(message_id)
+        message = message_service.get_message_by_id(message_id)
      
         if not message:
             raise HTTPException(status_code=404, detail="Message not found")

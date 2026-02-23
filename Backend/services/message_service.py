@@ -1,9 +1,8 @@
 from datetime import datetime
 import time
 from typing import Optional, List
-from models.message_model import Message, Timestamp
+from domain import Message, Timestamp
 from repository.repository_base import IMessageRepository
-from validators.validators import UsernameValidator, MessageContentValidator
 
 class MessageService:
   
@@ -20,11 +19,7 @@ class MessageService:
         is_bold: bool = False,
         is_italic: bool = False,
     ) -> Message:
-        if not UsernameValidator.validate(username):
-            raise ValueError(f"Invalid username: {username}")
-        if not MessageContentValidator.validate(content):
-            raise ValueError(f"Invalid message content: {content}")
-
+        
         timestamp = Timestamp(value=scheduled_for) if scheduled_for else Timestamp()
 
         message = Message(
@@ -48,11 +43,14 @@ class MessageService:
             return False
         return True
 
-    def get_all_messages(self):
-        messages = [msg for msg in self.repository.get_all() if self._is_available(msg)]
+    def get_all_messages(self)->List[Message]:
+        messages = [
+            msg for msg in self.repository.get_all() 
+            if self._is_available(msg)
+            ]
         return sorted(messages, key=lambda m: m.timestamp.value, reverse=True)
 
-    def get_messages_after(self, after_dt: datetime):
+    def get_messages_after(self, after_dt: datetime)->List[Message]:
         messages = [
             msg for msg in self.repository.get_all()
             if self._is_available(msg) and msg.timestamp > after_dt
@@ -95,12 +93,6 @@ class MessageService:
         if not message:
             raise ValueError(f"Message not found: {message_id}")
         
-        if reaction_type == "like":
-            message.likes += 1
-        elif reaction_type == "dislike":
-            message.dislikes += 1
-        else:
-            raise ValueError(f"Invalid reaction type: {reaction_type}")
-        
+        message.add_reaction(reaction_type)
         self.repository.save(message)
         return message

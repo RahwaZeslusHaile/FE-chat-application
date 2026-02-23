@@ -1,6 +1,5 @@
 from typing import Optional
-
-from models.message_model import Message
+from domain import Message
 from repository.repository_base import IMessageRepository
 
 
@@ -9,8 +8,6 @@ class InMemoryMessageRepository(IMessageRepository):
         self._messages: dict[str, Message] = {}
 
     def save(self, message: Message) -> None:
-        if not isinstance(message, Message):
-            raise ValueError("Invalid message type")
         self._messages[message.id] = message
 
     def get_all(self) -> list[Message]:
