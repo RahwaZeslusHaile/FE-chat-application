@@ -39,8 +39,10 @@ class MessageService:
         return self.repository.get_by_id(message_id)
     
     def _is_available(self, message: Message) -> bool:
-        if message.scheduled_for and message.scheduled_for > datetime.now():
-            return False
+        if message.scheduled_for:
+            current_time = datetime.now()
+            if message.scheduled_for > current_time:
+                return False
         return True
 
     def get_all_messages(self)->List[Message]:
@@ -88,6 +90,16 @@ class MessageService:
             is_italic=is_italic,
         )
     
+    def get_due_scheduled_messages(self) -> List[Message]:
+        now = datetime.now()
+        due = []
+        for msg in self.repository.get_all():
+            if msg.scheduled_for and msg.scheduled_for <= now:
+                msg.scheduled_for = None        # mark delivered
+                self.repository.save(msg)
+                due.append(msg)
+        return due
+
     def add_reaction(self, message_id: str, reaction_type: str) -> Optional[Message]:
         message = self.get_message_by_id(message_id)
         if not message:

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { fetchMessages, postMessage, pollMessages } from "../src/utils/api.jsx";
+import { fetchMessages, postMessage, pollMessages } from "../src/utils/apiClient.jsx";
 import { API_CONFIG } from "../src/config/api.js";
 
 export const useMessagePolling = () => {
@@ -56,6 +56,9 @@ export const useMessagePolling = () => {
                     lastIsoRef.current = lastMsg.timestamp_iso;
                 }
             }
+            
+            await new Promise(r => setTimeout(r, 3000));
+            
         } catch (pollingErr) {
             console.error("Polling loop error", pollingErr);
             await new Promise(r => setTimeout(r, 2000));

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { wsClient } from "../src/services/websocket/wsClient.js";
-import { postMessage } from "../src/utils/api.jsx";
+import { postMessage } from "../src/utils/apiClient.jsx";
 import { API_CONFIG } from "../src/config/api.js";
 
 export const useWebSocket = () => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MessageReaction from './MessageReaction.jsx';
 import ReplyList from './ReplyList.jsx';
-import { postReply, fetchReplies } from '../utils/api.jsx';
+import { postReply, fetchReplies } from '../utils/apiClient.jsx';
 
 function MessageItem({ message, onReactionChange }) {
     const [showReplyForm, setShowReplyForm] = useState(false);

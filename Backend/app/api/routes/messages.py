@@ -1,4 +1,4 @@
-from datetime import datetime,timezone
+from datetime import datetime, timezone
 from fastapi import APIRouter,HTTPException,Query,Depends
 from typing import Optional,List
 
@@ -101,7 +101,8 @@ async def create_message(
             is_italic=request.is_italic,
         )
 
-        await ws_manager.broadcast_new_message(message.to_dict())
+        if not scheduled_dt or scheduled_dt <= datetime.now():
+            await ws_manager.broadcast_new_message(message.to_dict())
 
         return MessageResponse(**message.to_dict())
 
@@ -134,7 +135,8 @@ async def create_reply(
             is_italic=request.is_italic,
         )
 
-        await ws_manager.broadcast_new_reply(reply.to_dict(), message_id)
+        if not scheduled_dt or scheduled_dt <= datetime.now():
+            await ws_manager.broadcast_new_reply(reply.to_dict(), message_id)
 
         return MessageResponse(**reply.to_dict())
 

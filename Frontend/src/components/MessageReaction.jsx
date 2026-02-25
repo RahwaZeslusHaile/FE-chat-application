@@ -1,5 +1,5 @@
 import React from 'react';
-import { addReaction } from '../utils/api.jsx';
+import { addReaction } from '../utils/apiClient.jsx';
 
 export default function MessageReaction({ messageId, likes = 0, dislikes = 0, onReactionChange }) {
   const [loading, setLoading] = React.useState(false);

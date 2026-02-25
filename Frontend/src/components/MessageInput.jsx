@@ -1,5 +1,6 @@
 import { useState } from "react";
 import React from "react";
+import { convertToUTC, getMinDateTime } from "../utils/dateTime.js";
 
 function UsernameEntry({ onSend }) {
   const [username, setUsername] = useState("");
@@ -15,7 +16,7 @@ function UsernameEntry({ onSend }) {
       onSend({
         username,
         content: message,
-        scheduled_for: scheduledFor || null,
+        scheduled_for: convertToUTC(scheduledFor),
         text_color: textColor,
         is_bold: isBold,
         is_italic: isItalic,
@@ -83,6 +84,7 @@ function UsernameEntry({ onSend }) {
             type="datetime-local"
             value={scheduledFor}
             onChange={(e) => setScheduledFor(e.target.value)}
+            min={getMinDateTime()}
             className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </label>
